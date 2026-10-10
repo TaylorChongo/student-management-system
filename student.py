@@ -73,6 +73,8 @@ class Student(ABC):
             f"name={self.name!r}, email={self.email!r})"
         )
 
+# Need to be reviewd, 76 to 98
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Student):
             return NotImplemented
