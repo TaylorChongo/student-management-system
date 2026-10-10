@@ -30,6 +30,10 @@ python main.py
 The menu supports registering students, adding courses, enrolling students,
 recording grades, and generating student or instructor reports.
 
+Data is saved automatically to `student_data.json` after changes and restored
+when the application starts. The file is ignored by Git because it contains
+local application data.
+
 Example workflow:
 
 ```text

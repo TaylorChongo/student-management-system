@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 
 from course import Course
 from services import (
@@ -12,6 +13,7 @@ from services import (
     add_student,
     enroll_student,
 )
+from persistence import DEFAULT_DATA_FILE, load_data, save_data
 from student import GraduateStudent, Student, UndergraduateStudent
 
 InputFunction = Callable[[str], str]
@@ -67,10 +69,14 @@ def add_course_from_input(
 def run_cli(
     input_fn: InputFunction = input,
     output: OutputFunction = print,
+    data_file: Path = DEFAULT_DATA_FILE,
 ) -> None:
     """Run the application until the user selects Exit."""
-    students: dict[str, Student] = {}
-    courses: dict[str, Course] = {}
+    try:
+        students, courses = load_data(data_file)
+    except (OSError, ValueError) as error:
+        output(f"Error: {error}")
+        return
 
     while True:
         print_menu(output)
@@ -78,18 +84,22 @@ def run_cli(
         try:
             if choice == "1":
                 register_student(students, input_fn, output)
+                save_data(students, courses, data_file)
             elif choice == "2":
                 add_course_from_input(courses, input_fn, output)
+                save_data(students, courses, data_file)
             elif choice == "3":
                 student_id = input_fn("Student ID: ")
                 course_id = input_fn("Course ID: ")
                 enroll_student(students, courses, student_id, course_id)
+                save_data(students, courses, data_file)
                 output("Enrollment completed successfully.")
             elif choice == "4":
                 course_id = input_fn("Course ID: ")
                 student_id = input_fn("Student ID: ")
                 grade = float(input_fn("Grade (0-100): "))
                 courses[course_id].record_grade(student_id, grade)
+                save_data(students, courses, data_file)
                 output("Grade recorded successfully.")
             elif choice == "5":
                 student_id = input_fn("Student ID: ")
@@ -102,11 +112,12 @@ def run_cli(
             elif choice == "8":
                 output("\n".join(map(str, courses.values())) or "No courses available.")
             elif choice == "0":
+                save_data(students, courses, data_file)
                 output("Goodbye.")
                 return
             else:
                 output("Invalid option. Please choose a listed menu option.")
-        except (KeyError, ValueError) as error:
+        except (KeyError, OSError, ValueError) as error:
             # Expected user-input errors are shown without terminating the CLI.
             output(f"Error: {error}")
 
