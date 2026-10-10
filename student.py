@@ -4,6 +4,8 @@ The module demonstrates encapsulation, inheritance, polymorphism, class
 methods, static methods, and magic methods required by the project brief.
 """
 
+# Postpones annotation evaluation so the Student return type can refer to the
+# class while it is still being defined.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -23,6 +25,8 @@ class Student(ABC):
         self._student_id = student_id.strip()
         self._name = name.strip()
         self._email = email.strip()
+        # Keep the mutable collection private; callers receive a read-only
+        # snapshot through the course_ids property.
         self._course_ids: set[str] = set()
 
     @property
@@ -43,6 +47,7 @@ class Student(ABC):
     @property
     def course_ids(self) -> frozenset[str]:
         """Expose enrollments without allowing callers to mutate the set."""
+        # A frozenset prevents external code from changing the private set.
         return frozenset(self._course_ids)
 
     def add_course(self, course_id: str) -> None:
@@ -54,13 +59,15 @@ class Student(ABC):
         self._course_ids.discard(course_id)
 
     @classmethod
-    def from_record(cls, record: dict[str, str]) -> Student: # this method is used to create a student from a record already in the dictionnry
+    def from_record(cls, record: dict[str, str]) -> Student:
         """Build a student from a dictionary-like data record."""
+        # cls preserves the concrete subclass when this factory is inherited.
         return cls(record["student_id"], record["name"], record["email"])
 
     @staticmethod
     def is_valid_email(email: str) -> bool:
         """Perform the small validation needed by this console application."""
+        # rsplit limits the check to the domain portion after the final "@".
         return "@" in email and "." in email.rsplit("@", 1)[-1]
 
     @abstractmethod
@@ -68,14 +75,16 @@ class Student(ABC):
         """Return the type-specific label used in reports."""
 
     def __repr__(self) -> str:
+        # !r makes whitespace and empty values visible in debug output.
         return (
             f"{type(self).__name__}(student_id={self.student_id!r}, "
             f"name={self.name!r}, email={self.email!r})"
         )
-    
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Student):
+            # Returning NotImplemented lets Python try the reflected comparison
+            # instead of declaring unrelated types equal.
             return NotImplemented
         return self.student_id == other.student_id
 

@@ -28,6 +28,7 @@ class ModelTests(unittest.TestCase):
             course.record_grade("S002", 80)
 
     def test_enrollment_is_hashable(self) -> None:
+        # Equal frozen dataclass instances collapse to one set entry.
         enrollments = {Enrollment("S001", "CS101"), Enrollment("S001", "CS101")}
 
         self.assertEqual(len(enrollments), 1)

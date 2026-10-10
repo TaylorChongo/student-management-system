@@ -16,6 +16,8 @@ from services import (
 from persistence import DEFAULT_DATA_FILE, load_data, save_data
 from student import GraduateStudent, Student, UndergraduateStudent
 
+# Callback aliases make the CLI independently testable without patching input
+# or print at module scope.
 InputFunction = Callable[[str], str]
 OutputFunction = Callable[[str], None]
 
@@ -101,6 +103,7 @@ def run_cli(
             elif choice == "4":
                 course_id = input_fn("Course ID: ")
                 student_id = input_fn("Student ID: ")
+                # Convert once at the boundary so the domain model receives a number.
                 grade = float(input_fn("Grade (0-100): "))
                 courses[course_id].record_grade(student_id, grade)
                 save_data(students, courses, data_file)
@@ -112,6 +115,8 @@ def run_cli(
                 course_id = input_fn("Course ID: ")
                 output(CourseReport(courses[course_id], students).generate())
             elif choice == "7":
+                # map uses each object's string representation without a
+                # separate formatting loop.
                 output("\n".join(map(str, students.values())) or "No students registered.")
             elif choice == "8":
                 output("\n".join(map(str, courses.values())) or "No courses available.")

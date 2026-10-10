@@ -9,6 +9,7 @@ from main import run_cli
 
 class CliTests(unittest.TestCase):
     def test_cli_can_register_student_and_exit(self) -> None:
+        # An iterator models a deterministic sequence of console responses.
         answers = iter(["1", "S001", "Alex", "alex@example.com", "U", "0"])
         output: list[str] = []
 

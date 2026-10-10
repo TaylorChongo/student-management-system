@@ -21,7 +21,8 @@ def add_student(
     ``tags`` and ``metadata`` demonstrate flexible function arguments while
     keeping the registry focused on the domain object.
     """
-    del tags, metadata  # Reserved for future filtering and audit metadata.
+    # Accept optional metadata without storing it until those features exist.
+    del tags, metadata
     if student.student_id in students:
         raise ValueError(f"Student '{student.student_id}' already exists.")
     students[student.student_id] = student
@@ -49,6 +50,7 @@ def enroll_student(
     course_id: str,
 ) -> Enrollment:
     """Enroll a known student in a known course."""
+    # get() allows both missing-record checks to produce clear domain errors.
     student = students.get(student_id)
     course = courses.get(course_id)
     if student is None:
@@ -79,6 +81,8 @@ def students_for_course(
     course: Course,
 ) -> list[Student]:
     """Return enrolled student objects using a list comprehension."""
+    # Filter stale IDs before indexing so an incomplete persisted registry does
+    # not raise while a report is being generated.
     return [students[student_id] for student_id in course.student_ids if student_id in students]
 
 

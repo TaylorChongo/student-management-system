@@ -5,7 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True, slots=True) #used to create a simple data class that represents an enrollment, with frozen=True to make it immutable and slots=True to optimize memory usage
+# frozen prevents an enrollment from changing after creation; slots avoids a
+# per-instance __dict__ for this small value object.
+@dataclass(frozen=True, slots=True)
 class Enrollment:
     """Represent one student-course relationship."""
 

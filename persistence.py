@@ -9,6 +9,7 @@ from typing import Any
 from course import Course
 from student import GraduateStudent, Student, UndergraduateStudent
 
+# Store the default file beside this module rather than depending on cwd.
 DEFAULT_DATA_FILE = Path(__file__).with_name("student_data.json")
 
 
@@ -22,6 +23,8 @@ def load_data(
     try:
         raw_data = json.loads(data_file.read_text(encoding="utf-8"))
     except json.JSONDecodeError as error:
+        # Keep the parser error chained while exposing a domain-specific
+        # message to the application layer.
         raise ValueError(f"Could not read saved data: {data_file} is not valid JSON.") from error
     except OSError as error:
         raise OSError(f"Could not read saved data from {data_file}.") from error
@@ -76,6 +79,7 @@ def _load_students(records: list[dict[str, Any]]) -> dict[str, Student]:
         "Graduate": GraduateStudent,
     }
     for record in records:
+        # The type field selects the concrete subclass during deserialization.
         student_class = student_classes[record["type"]]
         student = student_class(record["student_id"], record["name"], record["email"])
         for course_id in record.get("course_ids", []):
@@ -90,6 +94,8 @@ def _load_courses(records: list[dict[str, Any]]) -> dict[str, Course]:
         course = Course(record["course_id"], record["title"], record["instructor"])
         for student_id in record.get("student_ids", []):
             course.add_student(student_id)
+        # Grades are loaded after the roster because record_grade requires
+        # every graded student to already be enrolled.
         for student_id, grade in record.get("grades", {}).items():
             course.record_grade(student_id, grade)
         courses[course.course_id] = course
