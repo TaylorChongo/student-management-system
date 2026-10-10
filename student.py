@@ -72,8 +72,7 @@ class Student(ABC):
             f"{type(self).__name__}(student_id={self.student_id!r}, "
             f"name={self.name!r}, email={self.email!r})"
         )
-
-# Need to be reviewd, 76 to 98
+    
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Student):
