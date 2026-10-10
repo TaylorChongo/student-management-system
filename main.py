@@ -46,6 +46,8 @@ def register_student(
     name = input_fn("Name: ")
     email = input_fn("Email: ")
     student_type = input_fn("Type (U for undergraduate, G for graduate): ").upper()
+    # Only "G" selects the graduate class; any other value follows the
+    # default undergraduate path used by the menu.
     student_class = GraduateStudent if student_type == "G" else UndergraduateStudent
     add_student(students, student_class(student_id, name, email))
     output(f"Registered {name.strip()} successfully.")
@@ -84,6 +86,8 @@ def run_cli(
         try:
             if choice == "1":
                 register_student(students, input_fn, output)
+                # Save immediately after registration so the new record is
+                # not lost if the process stops before the next menu action.
                 save_data(students, courses, data_file)
             elif choice == "2":
                 add_course_from_input(courses, input_fn, output)
