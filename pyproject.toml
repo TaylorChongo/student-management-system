@@ -1,0 +1,16 @@
+
+[project]
+name = "student-management-system"
+version = "0.1.0"
+description = "A console-based student course management system."
+authors = [
+    {name = "Student Management System"}
+]
+requires-python = ">=3.14.8,<3.15"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
